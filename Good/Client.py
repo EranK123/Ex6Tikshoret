@@ -24,7 +24,7 @@ def receive():
 
 def write():
     while True:
-        msg = '{}: {}'.format(name, input(''))
+        msg = '{}: {}'.format(name, input(""))
         client.send(msg.encode('ascii'))
 
 

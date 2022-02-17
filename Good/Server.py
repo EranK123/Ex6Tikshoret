@@ -14,7 +14,7 @@ names = []
 
 def broadcast(msg):
     for client in clients:
-        client.sed(msg)
+        client.send(msg)
 
 
 def handle(client):
