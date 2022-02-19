@@ -10,6 +10,7 @@ server.listen(4)
 
 clients = []
 names = []
+conn = False
 
 
 def broadcast(msg):
@@ -24,9 +25,17 @@ def handle(client):
             if msg.decode('ascii').startswith('GET_USERS'):
                 print_users(client)
             elif msg.decode('ascii').startswith('DIS'):
-                # disconnect_name = msg.decode('ascii')[11:]
                 dis_user(client)
                 print("{} disconnected".format(client_name(client)))
+            # elif msg.decode('ascii').startswith('CON'):
+            #     conn = True
+            #     connect_name = msg.decode('ascii')[8:]
+            #     connect_user(connect_name)
+            elif msg.decode('ascii').startswith('SEND_ALL'):
+                message = msg.decode('ascii')[12:]
+                broadcast(message)
+            elif msg.decode('ascii').startswith('SEND_ONE'):
+                pass
             else:
                 broadcast(msg)
         except:
@@ -42,6 +51,7 @@ def handle(client):
 
 def receive():
     while True:
+        # if conn:
         client, addr = server.accept()
         print("Connected with {}".format(str(addr)))
 
@@ -55,12 +65,19 @@ def receive():
 
         thread = threading.Thread(target=handle, args=(client,))
         thread.start()
+        # conn = False
+
 
 def client_name(client):
     if client in clients:
         index = clients.index(client)
         name = names[index]
         return name
+
+
+def connect_user(name):
+    pass
+
 
 def dis_user(client):
     name = client_name(client)

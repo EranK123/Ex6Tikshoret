@@ -1,6 +1,7 @@
 import threading
 import socket
 
+
 name = input("Name: ")
 host = '127.0.0.1'
 port = 5001
@@ -30,6 +31,13 @@ def write():
                 client.send('GET_USERS'.encode('ascii'))
             elif msg[len(name) + 2:].startswith('/disconnect'):
                 client.send('DIS'.encode('ascii'))
+            elif msg[len(name) + 2:].startswith('/connect'):
+                client.send('{} CON'.format(msg[len(name) + 2 + 10:]).encode('ascii'))
+            elif msg[len(name) + 2:].startswith('/set_msg_all'):
+                client.send('{} SEND_ALL'.format(msg[len(name) + 2 + 14:]).encode('ascii'))
+            elif msg[len(name) + 2:].startswith('/set_msg'):
+                client.send('{} SEND_ONE'.format(msg[len(name) + 2 + 10:]).encode('ascii'))
+
         else:
             client.send(msg.encode('ascii'))
 
