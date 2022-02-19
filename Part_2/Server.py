@@ -21,7 +21,14 @@ def handle(client):
     while True:
         try:
             msg = client.recv(1024)
-            broadcast(msg)
+            if msg.decode('ascii').startswith('GET_USERS'):
+                print_users(client)
+            elif msg.decode('ascii').startswith('DIS'):
+                disconnect_name = msg.decode('ascii')[11:]
+                dis_user(disconnect_name)
+                print("{} disconnected".format(disconnect_name))
+            else:
+                broadcast(msg)
         except:
             index = client.index(client)
             clients.remove(client)
@@ -47,6 +54,20 @@ def receive():
 
         thread = threading.Thread(target=handle, args=(client,))
         thread.start()
+
+
+def dis_user(name):
+    if name in names:
+        i = names.index(name)
+        dis_client = clients[i]
+        clients.remove(dis_client)
+        dis_client.close()
+        names.remove(name)
+
+
+def print_users(client):
+    for name in names:
+        client.send("{}".format(name).encode('ascii'))
 
 
 print("Server is running")
