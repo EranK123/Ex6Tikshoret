@@ -35,7 +35,8 @@ def handle(client):
                 message = msg.decode('ascii')[12:]
                 broadcast(message)
             elif msg.decode('ascii').startswith('SEND_ONE'):
-                pass
+                name_send_to = msg.decode('ascii')[8:]
+                send_to_specific(name_send_to)
             else:
                 broadcast(msg)
         except:
@@ -92,6 +93,12 @@ def dis_user(client):
 def print_users(client):
     for name in names:
         client.send("{}".format(name).encode('ascii'))
+
+
+def send_to_specific(name):
+    if name in names:
+        i = names.index(name)
+        client = clients[i]
 
 
 print("Server is running")
