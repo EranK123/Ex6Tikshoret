@@ -27,28 +27,48 @@ class Server:
 
 
     def pr_broadcast(self,from_client, to_client, msg):
+        # to_client = client.encode('utf-8')
         for c in self.clients:
-            if c is to_client:
-                c.send(msg)
+            name = self.client_name(c)
+            print("name:",name)
+            print("len name:",len(name))
+            print("client:",to_client)
+            print("len client:",len(to_client))
+            print("msg:",msg)
+            if name == to_client:
+                print("37")
+                print("msg: ", msg)
+                c.send(msg.encode('utf-8'))
+                from_client.send(msg.encode('utf-8'))
+                print("43")
+                print("msg after", msg)
 
     def handle(self, client):
         while True:
             try:
                 print("26")
-                # start = client.recv(1024)
-                # temp = start.decode('utf-8').partition('%')
+                start = client.recv(1024)
+                temp = start.decode('utf-8').partition("|")
                 # print("temp : ", temp)
-                # t0 = temp[0]
-                # msg = temp[2]
-                msg = client.recv(1024)##.decode('utf-8')
-                # print(msg.decode('utf-8'))
+                print("???????" ,len(temp[1]))
+                print(temp)
+                if len(temp[1]) != 0:
+                    to = temp[0]
+                    msg = temp[2]
+                else:
+                    print("47")
+                    msg = temp[0]
+                    to = temp[2]
+                # msg = client.recv(1024)##.decode('utf-8')
+                # print("msg: " ,msg.decode('utf-8'))
 
-                # print("t0: ", t0)
-                # print("msg: ", msg)
-                if msg.decode('utf-8').startswith('GET_USERS'):
+                print("t0:",to)
+                print("msg:",msg)
+                # if msg.decode('utf-8').startswith('GET_USERS'):
+                if msg.startswith('GET_USERS'):
                     print("34")
                     self.print_users(client)
-                elif msg.decode('utf-8').startswith('DIS'):
+                elif msg.startswith('DIS'):
                     print("36")
                     self.dis_user(client)
                     print("{} disconnected".format(client_name(client)))
@@ -65,15 +85,16 @@ class Server:
                 #     self.pr_broadcast(client, t0, message)
 
                 else:
-                    # if len(to) == 1:
-                        self.broadcast(msg)
-                        # print("68")
+                    if len(to) == 1:
+                        print("78")
+                        self.broadcast(msg.encode('utf-8'))
+
                     # self.sock.send((to.encode('utf-8') + "%".encode('utf-8') + msg.encode('utf-8')))
                     # self.sock.send(to.encode('utf-8'))
                     # print("hey!!!!!!!!!")
-                    # else:
-                    #     print("73")
-                    #     self.pr_broadcast(client, to, msg)
+                    else:
+                        print("86")
+                        self.pr_broadcast(client, to[:-1], msg)#.encode('utf-8'))
                         # self.msg_area.delete('1.0', 'end')
                         # self.to_area.delete('1.0', 'end')
                     # self.sock.se
@@ -85,12 +106,12 @@ class Server:
                 print("57")
                 if client in self.clients:
                     print("59")
-                    print(client)
+                    # print(client)
                     index = self.clients.index(client)
                     self.clients.remove(client)
                     client.close()
                     name = self.names[index]
-                    print(name)
+                    # print(name)
                     self.broadcast('{} left!'.format(name).encode('utf-8'))
                     self.names.remove(name)
                     break
@@ -142,16 +163,17 @@ class Server:
 
 
     def dis_user(self, client):
-        name = client_name(client)
+        name = self.client_name(client)
         if name in self.names:
-            i = self.names.index(name)
-            dis_client = self.clients[i]
-            self.clients.remove(dis_client)
-            # clients.remove(client)
-            dis_client.close()
+        #     i = self.names.index(name)
+        #     dis_client = self.clients[i]
+        #     self.clients.remove(dis_client)
+            client.close()
+            clients.remove(client)
+            # dis_client.close()
             self.names.remove(name)
-            # client.close()
-            exit(0)
+
+            # exit(0)
 
 
     def print_users(self, client):

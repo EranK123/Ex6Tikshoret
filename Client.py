@@ -123,43 +123,48 @@ class Client:
         while True:
             msg = '{}: {}'.format(self.name, self.msg_area.get('1.0', 'end'))
             to = '{}'.format(self.to_area.get('1.0', 'end'))
+            self.sock.send(to.encode('utf-8') + "|".encode('utf-8') + msg.encode('utf-8'))
+            # self.sock.send(to.encode('utf-8'))
+            self.msg_area.delete('1.0', 'end')
+            self.to_area.delete('1.0', 'end')
+            break
             # print("125")
             # print("msg: ",msg)
             # print()
             # print("to: ", to)
             # print("len to: ", len(to))
-            if msg[len(self.name) + 2:].startswith('/'):
-                print("81")
-                if msg[len(self.name) + 2:].startswith('/get_users'):
-                    print("83")
-                    self.sock.send('GET_USERS'.encode('utf-8'))
-                    break
-                elif msg[len(self.name) + 2:].startswith('/disconnect'):
-                    print("86")
-                    self.sock.send('DIS'.encode('utf-8'))
-                    break
-                elif msg[len(self.name) + 2:].startswith('/connect'):
-                    print("89")
-                    self.sock.send('{} CON'.format(msg[len(self.name) + 2 + 10:]).encode('utf-8'))
-                    break
-                elif msg[len(self.name) + 2:].startswith('/set_msg_all'):
-                    print("92")
-                    self.sock.send('{} SEND_ALL'.format(msg[len(self.name) + 2 + 14:]).encode('utf-8'))
-                    break
-                elif msg[len(self.name) + 2:].startswith('/set_msg'):
-                    print("95")
-                    self.sock.send('{} SEND_ONE'.format(msg[len(self.name) + 2 + 10:]).encode('utf-8'))
-                    break
-            else:
+            # if msg[len(self.name) + 2:].startswith('/'):
+            #     print("81")
+            #     if msg[len(self.name) + 2:].startswith('/get_users'):
+            #         print("83")
+            #         self.sock.send('GET_USERS'.encode('utf-8'))
+            #         break
+            #     elif msg[len(self.name) + 2:].startswith('/disconnect'):
+            #         print("86")
+            #         self.sock.send('DIS'.encode('utf-8'))
+            #         break
+            #     elif msg[len(self.name) + 2:].startswith('/connect'):
+            #         print("89")
+            #         self.sock.send('{} CON'.format(msg[len(self.name) + 2 + 10:]).encode('utf-8'))
+            #         break
+            #     elif msg[len(self.name) + 2:].startswith('/set_msg_all'):
+            #         print("92")
+            #         self.sock.send('{} SEND_ALL'.format(msg[len(self.name) + 2 + 14:]).encode('utf-8'))
+            #         break
+            #     elif msg[len(self.name) + 2:].startswith('/set_msg'):
+            #         print("95")
+            #         self.sock.send('{} SEND_ONE'.format(msg[len(self.name) + 2 + 10:]).encode('utf-8'))
+            #         break
+            # else:
                 # if len(to) == 1:
                 #     print("149")
-                    self.sock.send(msg.encode('utf-8'))
-                    # self.sock.send(to.encode('utf-8'))
-                    # print("hey!!!!!!!!!")
-                    self.msg_area.delete('1.0', 'end')
-                    self.to_area.delete('1.0', 'end')
-                    # self.sock.se
-                    break
+                #     self.sock.send(msg.encode('utf-8'))
+                #     # self.sock.send(to.encode('utf-8'))
+                #     # print("hey!!!!!!!!!")
+                #     self.msg_area.delete('1.0', 'end')
+                #     self.to_area.delete('1.0', 'end')
+                #     # self.sock.se
+                #     break
 
                     # self.sock.sendto(msg.encode('utf-8'), name)
 
