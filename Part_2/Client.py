@@ -3,9 +3,11 @@ import socket
 import tkinter
 import tkinter.scrolledtext
 from tkinter import simpledialog
+from tkinter import messagebox
+from tkinter import *
 
-host = '127.0.0.1'
-port = 5001
+HOST = '127.0.0.1'
+PORT = 5001
 
 
 class Client:
@@ -40,12 +42,28 @@ class Client:
         self.area = tkinter.Text(self.window, height=3)
         self.area.pack(padx=20, pady=5)
 
-        self.send_button = tkinter.Button(self.window, text="Send", comand=self.write)
-        self.send_button.pack(font=("Ariel", 12))
+        self.send_button = tkinter.Button(self.window, text="Send", command=self.write)
+        self.send_button.config(font=("Ariel", 12))
         self.send_button.pack(padx=20, pady=5)
+
+        self.users_button = tkinter.Button(self.window, text="Get Users", command=self.write)
+        self.users_button.pack(font=("Ariel", 12))
+        self.users_button.pack(padx=20, pady=5)
+
+        self.login_button = tkinter.Button(self.window, text="Connect", command=self.login)
+        self.login_button.config(font=("Ariel", 12))
+        self.login_button.pack(padx=20, pady=5)
 
         self.gui = True
         self.window.protocol("DELETE", self.stop)
+
+    def login(self):
+        global pop
+        pop = Toplevel(self.window)
+        pop.title("Login")
+        pop.geometry("300x150")
+
+
 
     def stop(self):
         self.running = False
@@ -90,7 +108,7 @@ class Client:
                 self.area.delete('1.0', 'end')
 
 
-client = Client(host, port)
+client = Client(HOST, PORT)
 # thread1 = threading.Thread(target=receive)
 # thread1.start()
 #
