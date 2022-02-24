@@ -7,7 +7,7 @@ port = 5001
 client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 client.connect((host, port))
 
-#
+#h
 def receive():
     while True:
         try:
