@@ -21,11 +21,22 @@ class AsyncMessages():
         """
         self.async_msgs[new_client_sock] = []
 
+
+    def add_new_socket_by_user(self, user, new_client_sock):
+        """
+            call to this method right after socket accept with client socket
+        """
+        self.sock_by_user[user] = new_client_sock
+
     def delete_socket(self, sock):
         """
             cwhen dissconnect
         """
         del self.async_msgs[sock]
+
+    def delete_user(self, name):
+
+        del self.sock_by_user[name]
 
     def put_msg_in_async_msgs(self, data, other_sock):
         self.lock_async_msgs.acquire()

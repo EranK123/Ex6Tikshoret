@@ -1,10 +1,10 @@
 import threading
 import socket
-
+from AsyncMessages import AsyncMessages
 HOST = '127.0.0.1'
 PORT = 5001
 
-class Server:
+class Server(Asyn):
 
     def __init__(self, host, port):
         self.server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -14,106 +14,60 @@ class Server:
         self.names = [] #{name, socket}
         # self.conn = False
         # self.async_msgs = {}
+        self.list_msgs = AsyncMessages()
 
 
     def broadcast(self, msg):
         for client in self.clients:
             client.send(msg)
-
-    # def pr_broadcast(self,from_client, to_client, msg):
-    #     for c in self.async_msgs:
-    #         if c is to_client:
-    #             self.async_msgs.put_msg_by_user("MSG|" + from_client + "|" + msg, to_client)
-
+        self.list_msgs.put_msg_to_all(msg)
 
     def pr_broadcast(self,from_client, to_client, msg):
-        # to_client = client.encode('utf-8')
         for c in self.clients:
             name = self.client_name(c)
-            print("name:",name)
-            print("len name:",len(name))
-            print("client:",to_client)
-            print("len client:",len(to_client))
-            print("msg:",msg)
+
             if name == to_client:
-                print("37")
-                print("msg: ", msg)
                 c.send(msg.encode('utf-8'))
                 from_client.send(msg.encode('utf-8'))
-                print("43")
-                print("msg after", msg)
+        self.list_msgs.put_msg_by_user(msg, to_client)
 
     def handle(self, client):
         while True:
             try:
-                print("26")
                 start = client.recv(1024)
                 temp = start.decode('utf-8').partition("|")
-                # print("temp : ", temp)
-                print("???????" ,len(temp[1]))
-                print(temp)
+
                 if len(temp[1]) != 0:
                     to = temp[0]
                     msg = temp[2]
                 else:
-                    print("47")
                     msg = temp[0]
                     to = temp[2]
-                # msg = client.recv(1024)##.decode('utf-8')
-                # print("msg: " ,msg.decode('utf-8'))
 
-                print("t0:",to)
-                print("msg:",msg)
-                # if msg.decode('utf-8').startswith('GET_USERS'):
                 if msg.startswith('GET_USERS'):
-                    print("34")
                     self.print_users(client)
+
                 elif msg.startswith('DIS'):
-                    print("36")
                     self.dis_user(client)
                     print("{} disconnected".format(client_name(client)))
-                # elif msg.decode('ascii').startswith('CON'):
-                #     conn = True
-                #     connect_name = msg.decode('ascii')[8:]
-                #     connect_user(connect_name)
-                # elif msg.decode('utf-8').startswith('SEND_ALL'):
-                #     print("43")
-                #     message = msg.decode('utf-8')[12:]
-                #     self.broadcast(message)
-                # elif msg.decode('utf-8').startswith('SEND_ONE'):
-                #     print("47")
-                #     self.pr_broadcast(client, t0, message)
 
                 else:
                     if len(to) == 1:
-                        print("78")
                         self.broadcast(msg.encode('utf-8'))
 
-                    # self.sock.send((to.encode('utf-8') + "%".encode('utf-8') + msg.encode('utf-8')))
-                    # self.sock.send(to.encode('utf-8'))
-                    # print("hey!!!!!!!!!")
                     else:
-                        print("86")
                         self.pr_broadcast(client, to[:-1], msg)#.encode('utf-8'))
-                        # self.msg_area.delete('1.0', 'end')
-                        # self.to_area.delete('1.0', 'end')
-                    # self.sock.se
-                        break
-                # else:
-                #     print("49")
-                #     self.broadcast(msg)
+
             except:
-                print("57")
                 if client in self.clients:
-                    print("59")
-                    # print(client)
                     index = self.clients.index(client)
                     self.clients.remove(client)
                     client.close()
                     name = self.names[index]
-                    # print(name)
                     self.broadcast('{} left!'.format(name).encode('utf-8'))
                     self.names.remove(name)
+                    self.list_msgs.delete_socket(client)
+                    self.list_msgs.delete_user()
                     break
 
     # def handle(client):
@@ -142,6 +96,8 @@ class Server:
             name = client.recv(1024).decode('utf-8')
             self.names.append(name)
             self.clients.append(client)
+            self.list_msgs.add_new_socket(client)
+            self.list_msgs.add_new_socket_by_user(name)
             print("Nickname is {}".format(name))
             self.broadcast("{} joined!\n".format(name).encode('utf-8'))
             client.send('Connected to the chat\n'.encode('utf-8'))
@@ -165,16 +121,11 @@ class Server:
     def dis_user(self, client):
         name = self.client_name(client)
         if name in self.names:
-        #     i = self.names.index(name)
-        #     dis_client = self.clients[i]
-        #     self.clients.remove(dis_client)
             client.close()
             clients.remove(client)
-            # dis_client.close()
             self.names.remove(name)
-
-            # exit(0)
-
+            self.list_msgs.delete_socket(client)
+            self.list_msgs.delete_user(name)
 
     def print_users(self, client):
         for name in self.names:

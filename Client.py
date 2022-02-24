@@ -103,7 +103,8 @@ class Client:
                 print("ERROR")
                 # print("88")
                 self.sock.close()
-                break
+                # break
+                exit(0)
 
     def login(self):
         msg = tkinter.Tk()
