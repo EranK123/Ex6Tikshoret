@@ -25,16 +25,23 @@ class Client:
         gui_thread.start()
 
     def gui_loop(self):
+        self.connect()
+
         self.window = tkinter.Tk()
         self.window.configure(bg="lightgray")
+        self.window.title("Client")
 
-        self.label = tkinter.Label(self.window, text="Chat:", bg="lightgray")
+        self.label = tkinter.Label(self.window, text=self.name + " Chat:", bg="lightgray")
         self.label.config(font=("Ariel", 12))
         self.label.pack(padx=15, pady=5)
 
         self.text = tkinter.scrolledtext.ScrolledText(self.window)
         self.text.pack(padx=20, pady=5)
         self.text.config(state='disabled')
+
+        # self.connect_button = tkinter.Button(self.window, text="Connect", command=self.connect, bg='yellow')
+        # self.connect_button.config(font=("Ariel", 12))
+        # self.connect_button.pack(padx=20, pady=5)
 
         self.send_button = tkinter.Button(self.window, text="Send", command=self.write)
         self.send_button.config(font=("Ariel", 12))
@@ -47,12 +54,6 @@ class Client:
         self.dis_button = tkinter.Button(self.window, text="Disconnect", command=self.disconnect)
         self.dis_button.config(font=("Ariel", 12))
         self.dis_button.pack(padx=20, pady=5)
-
-
-        self.connect_button = tkinter.Button(self.window, text="Connect", command=self.connect)
-        self.connect_button.config(font=("Ariel", 12))
-        self.connect_button.pack(padx=20, pady=5)
-
 
         self.get_files_names = tkinter.Button(self.window, text="Get Files", command=self.get_files)
         self.get_files_names.config(font=("Ariel", 12))
