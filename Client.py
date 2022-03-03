@@ -6,7 +6,7 @@ from tkinter import simpledialog
 from tkinter import *
 import os
 import shutil
-
+from ClientFile import ClientFile
 # HOST = '127.0.0.1'
 HOST = socket.gethostbyname(socket.gethostname())
 PORT = 5001
@@ -100,6 +100,16 @@ class Client:
         file.close()
         print("File Has Been Succesfully!")
 
+    def get_file(self, file_name_client):
+        client_file = ClientFile(HOST, PORT)
+        print("105")
+        client_file.recv_file(file_name_client)
+        print("107")
+        # file = open(file_name_client, 'wb')
+        # if self.data_f != "":
+        #     file.write(self.data_f.encode('utf-8'))
+        # file.close()
+        # print("File Has Been Succesfully!")
 
     def stop(self):
         self.running = False
@@ -116,7 +126,8 @@ class Client:
 
                 elif msg.startswith("data:"):
                     self.data_f = msg[5:]
-                    self.create_file(self.file_name_client)
+                    # self.create_file(self.file_name_client)
+                    self.get_file(self.file_name_client)
                 else:
                     if self.gui:
                         self.text.config(state='normal')

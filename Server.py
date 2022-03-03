@@ -1,11 +1,11 @@
 import threading
 import socket
-from AsyncMessages import AsyncMessages
 import os
 import tkinter
 import tkinter.scrolledtext
 from tkinter import simpledialog
 from tkinter import *
+from ServerFile import ServerFile
 # HOST = '127.0.0.1'
 HOST = socket.gethostbyname(socket.gethostname())
 PORT = 5001
@@ -85,7 +85,8 @@ class Server():
                                 self.text.insert(tkinter.INSERT, "msg for {} is{}num of msgs 1".format(self.client_name(c),m[2]) + "\n")
 
                     elif len(server_file_name) != 0:
-                        self.download_file(client, server_file_name)
+                        print("88")
+                        self.down_file(client, server_file_name)
 
                     else:
                         self.pr_broadcast(client, to[:-1], msg)#.encode('utf-8'))
@@ -171,8 +172,12 @@ class Server():
             file_data = file.read(1024)
         print("Data is sent!")
 
-    def start(self):
-        pass
+    def down_file(self, client, server_file_name):
+        print("176")
+        server_file = ServerFile(HOST, PORT)
+        print("178")
+        server_file.send_file(server_file_name)
+        print("180")
 
     def gui_loop(self):
         self.window = tkinter.Tk()
