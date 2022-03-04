@@ -14,20 +14,28 @@ PORT = 5001
 
 
 class Client:
+
     def __init__(self, host, port):
-        self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.sock.connect((host, port))
+        """
+        This init function sets the client with all it's parameters
+        :param host: host IP address
+        :param port: port number
+        """
+        self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)  # open a tcp socket
+        self.sock.connect((host, port))  # connect it to the host and port
         self.file_name_client = ""
         self.name = ""
         self.data_f = ""
         self.gui = False
         self.running = True
-        gui_thread = threading.Thread(target=self.gui_loop)
+        gui_thread = threading.Thread(target=self.gui_loop)  # run a thread on the gui
         gui_thread.start()
 
-    #make a gui for the client function
     def gui_loop(self):
-        self.connect()
+        """
+        This function creates the gui. It sets all the button and text boxes.
+        """
+        self.connect()  # when the gui is created the connect function is called
 
         self.window = tkinter.Tk()
         self.window.configure(bg="lightgray")
@@ -40,10 +48,6 @@ class Client:
         self.text = tkinter.scrolledtext.ScrolledText(self.window)
         self.text.pack(padx=20, pady=5)
         self.text.config(state='disabled')
-
-        # self.connect_button = tkinter.Button(self.window, text="Connect", command=self.connect, bg='yellow')
-        # self.connect_button.config(font=("Ariel", 12))
-        # self.connect_button.pack(padx=20, pady=5)
 
         self.send_button = tkinter.Button(self.window, text="Send", command=self.write)
         self.send_button.config(font=("Ariel", 12))
@@ -65,13 +69,11 @@ class Client:
         self.download_files.config(font=("Ariel", 12))
         self.download_files.pack(padx=20, pady=5)
 
-
         self.to_label = tkinter.Label(self.window, text="To(blank to all):", bg="lightgray")
         self.to_label.config(font=("Ariel", 12))
         self.to_label.pack(padx=20, pady=5)
         self.to_area = tkinter.Text(self.window, height=3)
         self.to_area.pack(padx=20, pady=5)
-
 
         self.Message_label = tkinter.Label(self.window, text="Message:", bg="lightgray")
         self.Message_label.config(font=("Ariel", 12))
@@ -83,44 +85,61 @@ class Client:
         self.window.protocol("VM_DELETE_WINDOW", self.stop)
         self.window.mainloop()
 
-    #get the files names from the server
+    # get the files names from the server
     def get_files(self):
+        """
+        In case the button GET_FILES is pressed we send to the server a notification it is sent so the server will display the files
+        :return:
+        """
         self.sock.send('GET_FILES'.encode('utf-8'))
 
-    #get the name file from the server that the client want
     def get_name_file(self):
+        """
+        gets the name file from the server that the client wants
+        """
         msg = tkinter.Tk()
         msg.withdraw()
         file_name_server = simpledialog.askstring("Server File Name", "Set a Server File", parent=msg)
         self.file_name_client = simpledialog.askstring("Client File Name", "Set a Client File", parent=msg)
-        self.sock.send(file_name_server.encode('utf-8') + "#".encode('utf-8'))# + self.file_name_client.encode('utf-8'))
-        # self.create_file(file_name_client)
+        self.sock.send(file_name_server.encode('utf-8') + "#".encode('utf-8'))  # sends the name of the file the
+        # client wants to download to the server
 
     def create_file(self, file_name_client):
+        """
+        This function creates the file. It opens the file with the name the client wants
+        :param file_name_client:
+        :return:
+        """
         file = open(file_name_client, 'wb')
         if self.data_f != "":
             file.write(self.data_f.encode('utf-8'))
         file.close()
-        print("File Has Been Succesfully!")
+        print("File Has Been Successfully Created!")
 
-    #stop the client sock
     def stop(self):
+        """
+        This function stops the client socket and closes the window gui
+        :return:
+        """
         self.running = False
         self.window.destroy()
         self.sock.close()
         exit(0)
 
-
     def receive(self):
-        while self.running:
+        """
+        This function receives all the messages sent by the server.
+        :return:
+        """
+        while self.running:  # while the client is not closed
             try:
-                msg = self.sock.recv(1024).decode('utf-8')
+                msg = self.sock.recv(1024).decode('utf-8')  # recv all messages
                 if msg == 'NICK':
-                    self.sock.send(self.name.encode('utf-8'))##'ASCI'
+                    self.sock.send(self.name.encode('utf-8'))
 
-                elif msg.startswith("data:"):
+                elif msg.startswith("data:"):  # if the message starts with data we know we want to open a file
                     self.data_f = msg[5:]
-                    self.create_file(self.file_name_client)
+                    self.create_file(self.file_name_client)  # create the file with the desired name
                 else:
                     if self.gui:
                         self.text.config(state='normal')
@@ -134,29 +153,44 @@ class Client:
                 self.sock.close()
                 exit(0)
 
-    #connect to the
     def connect(self):
+        """
+        This function connects the user to the chat. It opens a window to enter a name. After it is entered the user
+        will connect to the chat :return:
+        """
         msg = tkinter.Tk()
         msg.withdraw()
         self.name = simpledialog.askstring("Name", "Set a name", parent=msg)
-        recv_thread = threading.Thread(target=self.receive)
+        recv_thread = threading.Thread(target=self.receive) # create a thread on the receiving messages function
         recv_thread.start()
 
     def get_users(self):
-            self.sock.send('GET_USERS'.encode('utf-8'))
+        """
+        This function sends a notification to get the users from the server if the GET_USERS button is pressed
+        :return:
+        """
+        self.sock.send('GET_USERS'.encode('utf-8'))
 
     def disconnect(self):
+        """
+        This function sends a notification to disconnect the client from the chat to the server if the Disconnect
+        button is pressed :return:
+        """
         self.sock.send('DIS'.encode('utf-8'))
-        # self.window.destroy()
         self.window.quit()
 
     def write(self):
+        """
+        This function writes a message to other clients
+        """
         while True:
-            msg = '{}: {}'.format(self.name, self.msg_area.get('1.0', 'end'))
-            to = '{}'.format(self.to_area.get('1.0', 'end'))
-            self.sock.send(to.encode('utf-8') + "|".encode('utf-8') + msg.encode('utf-8'))
+            msg = '{}: {}'.format(self.name, self.msg_area.get('1.0', 'end')) # gets the message from the message
+            # text box
+            to = '{}'.format(self.to_area.get('1.0', 'end')) # gets the info to who send the message from To text box
+            self.sock.send(to.encode('utf-8') + "|".encode('utf-8') + msg.encode('utf-8')) # sends it to the server
             self.msg_area.delete('1.0', 'end')
             self.to_area.delete('1.0', 'end')
             break
+
 
 client = Client(HOST, PORT)
