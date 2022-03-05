@@ -17,16 +17,11 @@ SEGMENT_SIZE = 20
 class ServerFile:
 
     def __init__(self):
-        print("26")
         self.udp = UDP()
         self.udp.bind(ADDR)
-        print("bound to ", ADDR)
 
     def recv(self):
-        # data = ""
-        # addr = ()
         data, addr = self.udp.recv_from()
-        print("32")
         return data, addr
 
     def send(self, data, addr):
