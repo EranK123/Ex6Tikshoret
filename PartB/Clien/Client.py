@@ -25,7 +25,6 @@ class Client:
         self.proceed = False
         self.cancel = False
 
-
     def gui_loop(self):
         self.connect()
 
@@ -40,10 +39,6 @@ class Client:
         self.text = tkinter.scrolledtext.ScrolledText(self.window)
         self.text.pack(padx=20, pady=5)
         self.text.config(state='disabled')
-
-        # self.connect_button = tkinter.Button(self.window, text="Connect", command=self.connect, bg='yellow')
-        # self.connect_button.config(font=("Ariel", 12))
-        # self.connect_button.pack(padx=20, pady=5)
 
         self.send_button = tkinter.Button(self.window, text="Send", command=self.write)
         self.send_button.config(font=("Ariel", 12))
@@ -63,22 +58,18 @@ class Client:
         self.get_files_names = tkinter.Button(self.window, text="Get Files", command=self.get_files)
         self.get_files_names.config(font=("Ariel", 12))
         self.get_files_names.pack(padx=20, pady=5)
-        # self.get_files_names.place(x=500, y=400)
 
         self.download_files = tkinter.Button(self.window, text="Download File", command=self.get_name_file)
         self.download_files.config(font=("Ariel", 12))
         self.download_files.pack(padx=20, pady=5)
-        # self.download_files.place(x=500, y=470)
 
         self.proceed_button = tkinter.Button(self.window, text="Proceed", command=self.proceed_down)
         self.proceed_button.config(font=("Ariel", 12))
         self.proceed_button.pack(padx=20, pady=5)
-        # self.proceed_button.place(x=500, y=540)
 
         self.cancel_button = tkinter.Button(self.window, text="Cancel", command=self.cancel_down)
         self.cancel_button.config(font=("Ariel", 12))
         self.cancel_button.pack(padx=20, pady=5)
-        # self.cancel_button.place(x=500, y=600)
 
         self.to_label = tkinter.Label(self.window, text="To(blank to all):", bg="lightgray")
         self.to_label.config(font=("Ariel", 12))
@@ -93,7 +84,7 @@ class Client:
         self.msg_area.pack(padx=20, pady=5)
 
         self.gui = True
-        self.window.protocol("VM_DELETE_WINDOW", self.stop)
+        # self.window.protocol("VM_DELETE_WINDOW", self.stop)
         self.window.mainloop()
 
     def get_files(self):
@@ -105,26 +96,22 @@ class Client:
         file_name_server = simpledialog.askstring("Server File Name", "Set a Server File", parent=msg)
         self.file_name_client = simpledialog.askstring("Client File Name", "Set a Client File", parent=msg)
         self.sock.send(
-            file_name_server.encode('utf-8') + "#".encode('utf-8'))  # + self.file_name_client.encode('utf-8'))
-        # data = self.sock.recv()
-        # self.create_file(file_name_client)
-
-        # create a file and save the data from the server file
+            file_name_server.encode('utf-8') + "#".encode('utf-8'))
 
     def create_file(self, file_name_client):
-        # file = open(file_name_client, 'wb')
-
-        client_file = ClientFile()
-        client_file.send("connect")
-        # client_file.send("connect".encode())
-        msg1, addr = client_file.recv(file_name_client)
-        # self.text.insert(tkinter.INSERT, "Last Byte msg1 {}\n".format(len(msg1)))
+        """
+        This function receives data of a file. It uses the ClientFile class using the UDP class socket class we
+        implemented. It recieves the content in 2 seperate parts
+        :param file_name_client: The file name the client wants to save it
+        """
+        client_file = ClientFile()  # start socket udp using the ClientFile class
+        client_file.send("connect")  # send a connect message to let the server know we ready to get file
+        msg1, addr = client_file.recv(file_name_client)  # get the first part of the file content
         while True:
             if self.proceed:
                 client_file.send("proceed", addr)
                 msg2, _ = client_file.recv(file_name_client)
                 with open(file_name_client, "w+") as f:
-                    # data, addr = self.udp.recv_from()
                     f.write(msg1 + msg2)
                     print("File Has Been Succesfully!")
                     self.text.insert(tkinter.INSERT, "Last Byte all {}\n".format(len(msg1 + msg2)))
@@ -136,32 +123,12 @@ class Client:
                 break
         self.proceed = False
         self.cancel = False
-        # client_file.send("", (HOST,5002))
-
-        # # if self.data_f != "":
-        # print("102")
-        # msg, _ = client_file.recv(file_name_client)
-        # print("msg!:", msg)
-        # file.write(msg.encode('utf-8'))
-        # file.close()
-        # print("File Has Been Succesfully!")
 
     def proceed_down(self):
         self.proceed = True
 
     def cancel_down(self):
         self.cancel = True
-
-    # def get_file(self, file_name_client):
-    #     client_file = ClientFile(HOST, PORT)
-    #     print("105")
-    #     client_file.recv_file(file_name_client)
-    #     print("107")
-    # file = open(file_name_client, 'wb')
-    # if self.data_f != "":
-    #     file.write(self.data_f.encode('utf-8'))
-    # file.close()
-    # print("File Has Been Succesfully!")
 
     def stop(self):
         self.running = False
@@ -170,21 +137,13 @@ class Client:
         exit(0)
 
     def receive(self):
-        # client_file = ClientFile()
         while self.running:
             try:
                 msg = ""
-                # if self.data_f != "":
-                print("102")
-                # msg_udp = client_file.recv()
-                # print("msg_udp: ", msg_udp)
                 msg = self.sock.recv(1024).decode('utf-8')
                 if msg == 'NICK':
-                    self.sock.send(self.name.encode('utf-8'))  ##'ASCI'
+                    self.sock.send(self.name.encode('utf-8'))
                 elif msg.endswith("#"):
-                    # self.data_f = msg[5:]
-                    # self.create_file(self.file_name_client)
-                    # self.create_file(self.file_name_client)
                     threading.Thread(target=self.create_file, args=(self.file_name_client,)).start()
                 else:
                     if self.gui:
@@ -195,10 +154,6 @@ class Client:
             except ConnectionError as e:
                 print(e)
                 break
-            # except Exception as e:
-            #     print(e.with_traceback())
-            #     self.sock.close()
-            #     exit(0)
 
     def connect(self):
         msg = tkinter.Tk()
@@ -212,7 +167,6 @@ class Client:
 
     def disconnect(self):
         self.sock.send('DIS'.encode('utf-8'))
-        # self.window.destroy()
         self.window.quit()
 
     def write(self):

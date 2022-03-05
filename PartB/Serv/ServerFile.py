@@ -13,6 +13,7 @@ PORT = 5002
 ADDR = (HOST, PORT)
 SEGMENT_SIZE = 20
 
+
 class ServerFile:
 
     def __init__(self):
@@ -20,11 +21,6 @@ class ServerFile:
         self.udp = UDP()
         self.udp.bind(ADDR)
         print("bound to ", ADDR)
-    #     self.sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-        # self.sock.connect((host, port))
-        # self.sock.bind((host, port))
-        # thread = threading.Thread(target=self.send_file)
-        # thread.start()
 
     def recv(self):
         # data = ""
